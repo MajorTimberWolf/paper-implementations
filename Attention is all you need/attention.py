@@ -57,6 +57,7 @@ def estimate_loss():
 class SelfAttentionHead(nn.Module):
     def __init__(self, head_size):
         super().__init__()
+        self.head_size = head_size  # Store head_size as instance variable
         self.key = nn.Linear(n_embd, head_size, bias=False)
         self.query = nn.Linear(n_embd, head_size, bias=False)
         self.value = nn.Linear(n_embd, head_size, bias=False)
@@ -67,7 +68,8 @@ class SelfAttentionHead(nn.Module):
         B,T,C = x.shape
         k = self.key(x)
         q = self.query(x)
-        attention_scores = q @ k.transpose(-2,-1) * C**-0.5
+        # Fix: Scale by head_size instead of embedding dimension
+        attention_scores = q @ k.transpose(-2,-1) * self.head_size**-0.5  # Changed from C**-0.5
         attention_scores = attention_scores.masked_fill(self.causal_mask[:T, :T] == 0, float('-inf'))
         attention_probs = F.softmax(attention_scores, dim=-1)
         attention_probs = self.dropout(attention_probs)
