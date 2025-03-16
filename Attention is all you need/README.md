@@ -60,6 +60,19 @@ This implementation builds upon the base attention code from [@cneuralnetwork](h
   - Top-k sampling support
   - Autoregressive text generation
 
+## Recent Fixes
+
+### Attention Scaling Correction
+- **Issue**: Previously, attention weights were incorrectly scaled by the full embedding dimension (`n_embd**-0.5`)
+- **Fix**: Now correctly scales by the head dimension (`head_size**-0.5`) as per the original paper
+- **Impact**: More accurate attention score computation, potentially leading to better model performance
+
+Example of the difference:
+- Old scaling (with n_embd=64): 0.125 (1/8)
+- New scaling (with head_size=16): 0.25 (1/4)
+
+This brings the implementation more in line with the original paper's specification.
+
 ## Usage
 
 ```python
